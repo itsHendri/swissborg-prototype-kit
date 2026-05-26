@@ -1,0 +1,41 @@
+{
+  "expo": {
+    "name": "Prototype Kit",
+    "slug": "swissborg-prototype-kit",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0B0C10"
+    },
+    "fonts": [
+      "./assets/fonts/Satoshi-Regular.otf",
+      "./assets/fonts/Satoshi-Light.otf",
+      "./assets/fonts/Satoshi-Medium.otf",
+      "./assets/fonts/Satoshi-Bold.otf",
+      "./assets/fonts/Satoshi-Black.otf"
+    ],
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#0B0C10"
+      },
+      "edgeToEdgeEnabled": true,
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "owner": "itshendri",
+    "runtimeVersion": {
+      "policy": "sdkVersion"
+    }
+  }
+}
