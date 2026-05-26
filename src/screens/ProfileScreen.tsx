@@ -1,5 +1,5 @@
 import { useRef } from 'react';
-import { View, Text, Animated } from 'react-native';
+import { View, Text, Animated, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -113,8 +113,19 @@ export function ProfileScreen() {
             primaryWeight="semibold"
             trailing={<MenuTrailing badge={<Badge label="DEV" tone="dev" />} />}
             onPress={() => navigation.navigate('Styles')}
-            last
+            last={Platform.OS !== 'web'}
           />
+          {Platform.OS === 'web' ? (
+            <ListRow
+              leading={<IconCircle><Ionicons name="list-outline" size={18} color={COLORS.foreground} /></IconCircle>}
+              primary="Scenarios index"
+              primaryWeight="semibold"
+              secondary="Shareable URL — for stakeholder browse"
+              trailing={<MenuTrailing badge={<Badge label="WEB" tone="info" />} />}
+              onPress={() => navigation.navigate('Scenarios')}
+              last
+            />
+          ) : null}
         </Card>
       </Animated.ScrollView>
     </View>
@@ -134,11 +145,15 @@ function ScenariosCard() {
     return (
       <Card padding="all" style={{ marginBottom: SPACING.md }}>
         <Text style={[typography.body, { color: COLORS.foregroundMuted }]}>
-          No scenarios registered yet. Add Scenario objects to{' '}
+          No scenarios registered yet. Copy{' '}
+          <Text style={[typography.bodySemibold, { color: COLORS.foreground }]}>
+            src/prototype/_template/ScenarioTemplate.tsx
+          </Text>
+          {' '}into a new file, then register it in{' '}
           <Text style={[typography.bodySemibold, { color: COLORS.foreground }]}>
             src/prototype/scenarios.tsx
           </Text>
-          {' '}to populate this list.
+          {' '}to populate this list. See README → “First scenario in 60 seconds”.
         </Text>
       </Card>
     );

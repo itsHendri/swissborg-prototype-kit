@@ -236,6 +236,8 @@ same intent. Premature abstraction is worse than duplication.
 | `GlassIcon`  | `src/components/shared/GlassIcon.tsx`    | Branded green-glass PNG · `name` from static map · standard size `100` |
 | `PremiumIcon`| `src/components/shared/PremiumIcon.tsx`  | Large-format illustrated PNG for hero / empty-state / story surfaces · `name` from static map · standard size `160` |
 | `GlassNavButton` | `src/components/shared/GlassNavButton.tsx` | 36×36 glass button · used for back/close in `PageTitleBar` and success screens |
+| `Switch`     | `src/components/shared/Switch.tsx`       | iOS-style on/off toggle · `size`: sm/md · accent track when on · pair with `ListRow` trailing slot |
+| `PercentChange` | `src/components/shared/PercentChange.tsx` | Signed % with directional color + arrow · `variant`: text/pill · `size`: sm/md · `arrow`, `precision` |
 
 ### Molecules
 
@@ -246,6 +248,11 @@ same intent. Premature abstraction is worse than duplication.
 | `FilterChip`  | `src/components/shared/FilterChip.tsx`    | Neutral-active chip · never accent green                        |
 | `PagerDots`   | `src/components/shared/PagerDots.tsx`     | Active 16×6 / inactive 6×6 dot indicator                        |
 | `ShortcutButton` | `src/components/shared/ShortcutButton.tsx` | Icon + label action button                                    |
+| `OtpInput`    | `src/components/shared/OtpInput.tsx`      | N-digit code input · numeric keyboard · auto-advance · paste-aware · `length` (default 6), `onComplete`, `error` |
+| `AmountInput` | `src/components/shared/AmountInput.tsx`   | Hero numeric field · `symbol` + `symbolPosition` · optional `onMax` button + `onToggleCurrency` (fiat ↔ crypto) |
+| `UploadTile`  | `src/components/shared/UploadTile.tsx`    | KYC document upload affordance · `status`: empty/uploaded/error · mock-only (no real file picker) |
+| `Stepper`     | `src/components/shared/Stepper.tsx`       | Horizontal numbered progress · `current`/`total`/`labels?` · `variant`: numbered/compact · distinct from `PagerDots` (labeled and ordered) |
+| `Accordion`   | `src/components/shared/Accordion.tsx`     | Collapsible section · chevron rotate · `LayoutAnimation` body reveal · nest inside `<Card padding="rows">` |
 
 ### Organisms
 
@@ -262,6 +269,10 @@ same intent. Premature abstraction is worse than duplication.
 | `BottomSheet`  | `src/components/shared/BottomSheet.tsx`     | Generic option-picker modal · slide-up, scrim dismiss          |
 | `ShimmerGrid`  | `src/components/shared/ShimmerGrid.tsx`     | Ambient dot-grid background · `pointerEvents="none"` · place first child of container |
 | `ScreenGradient` | `src/components/shared/ScreenGradient.tsx` | Full-screen background gradient                               |
+| `QuoteCard`    | `src/components/shared/QuoteCard.tsx`       | Trade / swap confirmation summary · `from` + `to` sides + `meta` rows (rate/fee/slippage) · arrow in the middle |
+| `StatusTimeline` | `src/components/shared/StatusTimeline.tsx` | Vertical step list with `current` (0-indexed) · done/active/upcoming states · for transactions, KYC |
+| `Toast`        | `src/components/shared/Toast.tsx` + `src/context/ToastContext.tsx` | Imperative ephemeral notification — `useToast()` hook · tones: success/error/info/warning · auto-dismiss · stack newest on top |
+| `DevKitSection` | `src/components/shared/DevKitSection.tsx`  | Wrapper used **only** by `StylesScreen` — labelled section with `filter` and optional `api`/`caption`. Never render outside the Dev Kit. |
 
 ### Feature-specific — Loans
 

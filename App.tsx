@@ -21,22 +21,39 @@ if (Platform.OS === 'web' && typeof document !== 'undefined') {
 import { configureReanimatedLogger, ReanimatedLogLevel } from 'react-native-reanimated';
 configureReanimatedLogger({ level: ReanimatedLogLevel.error, strict: false });
 
-import { NavigationContainer, createNavigationContainerRef } from '@react-navigation/native';
+import { NavigationContainer, createNavigationContainerRef, type LinkingOptions } from '@react-navigation/native';
 import { useEffect } from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { useFonts } from 'expo-font';
-import { RootNavigator } from './src/navigation/RootNavigator';
+import { RootNavigator, type RootStackParamList } from './src/navigation/RootNavigator';
 import { AppScrollProvider } from './src/context/AppScrollContext';
 import { TabChromeProvider } from './src/context/TabChromeContext';
 import { NotificationsProvider } from './src/context/NotificationsContext';
 import { ThemeProvider } from './src/context/ThemeContext';
 import { WatchlistProvider } from './src/context/WatchlistContext';
 import { DisplayCurrencyProvider } from './src/context/DisplayCurrencyContext';
+import { ToastProvider } from './src/context/ToastContext';
 import { applyScenarioFromUrl } from './src/prototype/scenarios';
 
 // Web flow-capture nav ref (window.__nav). No-op on native.
 const navRef = createNavigationContainerRef();
+
+// Web URL routing — only used on the web build. Native ignores this prop.
+// `/scenarios` is the PM browse surface; the rest map straight to existing
+// stack screens so each can be shared as a direct URL.
+const linking: LinkingOptions<RootStackParamList> = {
+  prefixes: [],
+  config: {
+    screens: {
+      Main:      '',
+      Profile:   'profile',
+      Theme:     'theme',
+      Styles:    'styles',
+      Scenarios: 'scenarios',
+    },
+  },
+};
 
 function AppContent() {
   useEffect(() => {
@@ -54,10 +71,16 @@ function AppContent() {
         <WatchlistProvider>
           <AppScrollProvider>
             <TabChromeProvider>
-              <NavigationContainer ref={navRef}>
-                <StatusBar style="light" />
-                <RootNavigator />
-              </NavigationContainer>
+              <ToastProvider>
+                <NavigationContainer
+                  ref={navRef}
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  linking={Platform.OS === 'web' ? (linking as any) : undefined}
+                >
+                  <StatusBar style="light" />
+                  <RootNavigator />
+                </NavigationContainer>
+              </ToastProvider>
             </TabChromeProvider>
           </AppScrollProvider>
         </WatchlistProvider>

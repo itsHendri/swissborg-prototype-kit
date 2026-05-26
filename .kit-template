@@ -1,0 +1,6 @@
+This file marks the SwissBorg Prototype Kit repo itself.
+
+When you fork the kit into a new prototype via "Use this template",
+DELETE this file as part of the rename step. Its absence is what
+makes `scripts/check-setup.js` start warning you about leftover
+template defaults (slug, EAS projectId, etc).

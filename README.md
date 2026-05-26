@@ -11,26 +11,42 @@ library; ships with empty screens and a scenario picker.
 ## Starting a new prototype
 
 **Preferred — GitHub Template:**
-1. On the GitHub repo, Settings → check "Template repository".
-2. Click "Use this template" → name it `proto-<concept>` → "Create repository".
-3. `gh repo clone itshendri/proto-<concept> && cd proto-<concept>`
-4. Edit `package.json` `name` + `app.json` `name`/`slug` to match.
-5. `npm install && npx expo start --web`
-6. Build variants in `src/prototype/`, register them in
-   `src/prototype/scenarios.tsx`, ship via `eas update`.
+1. Click "Use this template" → name it `proto-<concept>` → Create.
+2. `gh repo clone itsHendri/proto-<concept> && cd proto-<concept>`
+3. Run the **After cloning** checklist below.
+4. `npm install && npx expo start` (then press `i` for the iOS Simulator).
+5. Build variants in `src/prototype/`, register them in
+   `src/prototype/scenarios.tsx`, ship via `npm run share`.
 
 **Local-filesystem alternative:**
 ```sh
 cp -R swissborg-prototype-kit proto-<concept>
 cd proto-<concept>
 rm -rf .git node_modules dist
-# manually update package.json + app.json slugs
 git init && npm install
+# then follow the After cloning checklist below
 ```
 
 Changes to the design system, shared components, or scenario system flow
 *back* into the kit. Changes to a specific prototype's variants stay in
 the prototype's fork.
+
+## After cloning
+
+Five-minute checklist for a freshly-forked prototype:
+
+1. **Delete `.kit-template`** — its presence silences the setup-check
+   warning. Once removed, `npm start` will nag you about anything still
+   set to the kit's defaults.
+2. **`package.json`** → set `"name"` to your prototype's slug.
+3. **`app.json`** → set `expo.name` (shown under the icon) and
+   `expo.slug`.
+4. **`npx eas project:init`** (one-time) → writes `expo.extra.eas.projectId`
+   and `expo.updates.url` back into `app.json`. Required before
+   `npm run share` can publish.
+5. **`npm install && npx expo start`**, press `i`. If Expo prompts
+   "Install the recommended Expo Go version?" and the fetch fails, type
+   **`n`** — the existing Expo Go on the Simulator is compatible.
 
 ## What's in the box
 
@@ -38,52 +54,100 @@ the prototype's fork.
   floating glass header, Profile push, full-screen Dev Kit modal.
 - **Design system** — colour, typography, spacing, radius tokens in
   `src/constants/`. Mirror in `tailwind.config.js`. See `DESIGN_SYSTEM.md`.
-- **~28 shared components** — Button, Card, ListRow, BottomSheet, TextField,
-  StickyBottomBar, PageTitleBar, GlassIcon, PremiumIcon, CryptoIcon,
-  PagerDots, ShimmerGrid, EmptyState, SuccessScreen, and more.
+- **~38 shared components** — primitives (Button, Card, ListRow,
+  BottomSheet, TextField, StickyBottomBar, PageTitleBar), feedback
+  (Toast, EmptyState, SuccessScreen, ShimmerGrid), forms (Switch,
+  OtpInput, AmountInput, UploadTile), flow scaffolding (Stepper,
+  QuoteCard, StatusTimeline, Accordion, PercentChange), iconography
+  (GlassIcon, PremiumIcon, CryptoIcon), and more.
 - **Scenario system** — register variants of any tab in
   `src/prototype/scenarios.tsx`. Activate via Profile → Scenarios, or via
   `?scenario=<id>` URL param on web.
 - **Dev Kit screen** (Profile → Dev Kit) — live preview of every shared
-  component + design token.
+  component + design token, with a sticky search field and tap-to-copy
+  on every color/spacing/radius/type token.
+- **Scenarios index** (web only, `/scenarios` or Profile → Scenarios
+  index) — flat list of every registered variant for stakeholder
+  browsing without touching the Profile picker.
 - **Web export to Figma** — see `WEB_EXPORT.md`.
 
 ## Run it
 
 ```sh
 npm install
-npx expo start --web    # browser, fastest iteration
-npx expo start --ios    # iOS simulator via Expo Go
+npx expo start    # canonical — pick the target interactively
 ```
 
-## Add a prototype variant
+`npx expo start` boots Metro and then waits for a single keystroke to
+pick the target: **`i`** iOS Simulator, **`a`** Android, **`w`** web,
+**`j`** debugger, **`r`** reload, **`m`** toggle dev menu. This is the
+preferred entry point because the same Metro instance can serve every
+target — no need to restart when you switch.
 
-1. Build the variant as a React component anywhere under `src/prototype/`
-   (e.g. `src/prototype/home/HomeV2.tsx`).
-2. Register it in `src/prototype/scenarios.tsx`:
+**Expo Go on the iOS Simulator is the canonical preview surface** —
+that's `i` from the prompt. The web target (`w`) exists so screens can
+be captured back into Figma (see `WEB_EXPORT.md`); it's not the intended
+preview for design or stakeholder review.
+
+The shortcut scripts (`npm run ios`, `npm run web`, `npm run android`)
+still exist for muscle memory, but they're just `expo start --<target>`
+under the hood and skip the interactive prompt.
+
+### First-run on the iOS Simulator
+
+If Expo prompts **"Install the recommended Expo Go version?"** and the
+download fails with `TypeError: fetch failed`, type **`n`** (not Enter —
+the default is `yes`). The Expo Go already on the Simulator is
+compatible; only the auto-upgrade is failing.
+
+## First scenario in 60 seconds
+
+1. **Copy the template:** `cp -R src/prototype/_template src/prototype/home`,
+   then rename `ScenarioTemplate.tsx` → `HomeV1.tsx` and rename the
+   exported function to match.
+2. **Edit `HomeV1.tsx`** — the file already wires up `ShimmerGrid`,
+   `PageTitleBar`, an `Animated.ScrollView` with the right insets, and a
+   sample `Button`/`Card`. Replace the body.
+3. **Register it** in `src/prototype/scenarios.tsx`:
 
    ```tsx
-   import { HomeV2 } from './home/HomeV2';
+   import { HomeV1 } from './home/HomeV1';
 
    export const scenarios: Scenario[] = [
-     { id: 'home-v2', label: 'Home — V2 (portfolio-led)', tab: 'Home', component: HomeV2 },
+     { id: 'home-v1', label: 'Home — V1', tab: 'Home', component: HomeV1 },
    ];
    ```
 
-3. Open Profile → Scenarios, tap the variant, and the Home tab renders it.
+4. **Open Profile → Scenarios** in the running app and tap your variant.
+   The Home tab renders it.
 
-To share a specific variant directly, append `?scenario=home-v2` to the web
-URL or use it inside an Expo Go deep-link.
+`src/prototype/_template/` is a copy-this-file starter — never imported
+into `scenarios.tsx`, so it stays invisible in the picker.
+
+To share one variant directly, append `?scenario=home-v1` to the web
+URL or — on web — open `/scenarios` (the stakeholder browse surface;
+also reachable from Profile → Scenarios index on web).
 
 ## Publish to Expo Go (EAS Update)
 
-1. Create an EAS project: `npx eas project:init` (writes
-   `extra.eas.projectId` + the `updates.url` back into `app.json`).
-2. Ship an update: `eas update --branch main --message "<summary>"`.
-3. Share the deep-link in the form
-   `exp://u.expo.dev/<projectId>/group/<updateGroupId>` (the bare
-   `https://u.expo.dev/...` URL 400s in a browser — Expo Go expects the
-   group form).
+```sh
+npm run share -- "Short summary of the update"
+```
+
+`scripts/share.sh` wraps `eas update`, parses the Update Group ID, and
+prints the deep link in the canonical form:
+
+```
+exp://u.expo.dev/<projectId>/group/<updateGroupId>
+```
+
+Paste that into Slack / email and the recipient opens it directly in
+Expo Go. The bare `https://u.expo.dev/...` URL 400s in a browser — Expo
+Go expects the `group/` form.
+
+Prerequisites: `eas whoami` shows you're logged in, and
+`expo.extra.eas.projectId` is present in `app.json` (one-time
+`npx eas project:init` after cloning).
 
 ## Repo layout
 
@@ -102,7 +166,8 @@ src/
 │   ├── TabNavigator.tsx      Home / Portfolio / Trade / Marketplace
 │   └── entries.ts
 ├── prototype/
-│   └── scenarios.tsx         register variants here
+│   ├── scenarios.tsx         register variants here
+│   └── _template/            copy-this-file starter (ignored by picker)
 └── screens/
     ├── HomeScreen / PortfolioScreen / SwapScreen / MarketplaceScreen
     │                         thin scenario routers
@@ -110,5 +175,9 @@ src/
     ├── MainLayout.tsx        floating header + tab content
     ├── ProfileScreen.tsx     Scenarios picker + dev surface links
     ├── ThemeScreen.tsx
-    └── StylesScreen.tsx      Dev Kit
+    ├── StylesScreen.tsx      Dev Kit (search + tap-to-copy tokens)
+    └── ScenariosIndexScreen.tsx  web-only stakeholder browse
+scripts/
+├── check-setup.js            prestart sanity check (slug, EAS projectId)
+└── share.sh                  `npm run share -- "<msg>"` → Expo Go deep link
 ```

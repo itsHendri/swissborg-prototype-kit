@@ -13,6 +13,22 @@
 > component-creation rules. Read it before writing any new UI.
 > This file covers engineering, state, navigation, and workflow.
 
+## Running the project
+
+- **Canonical command: `npx expo start`** — boots Metro and waits for an
+  interactive keystroke (`i` iOS Simulator, `a` Android, `w` web, `j`
+  debugger, `r` reload, `m` dev menu). Always prefer this over the
+  target-specific shortcuts; one Metro instance serves every target.
+- The `npm run ios` / `npm run web` / `npm run android` scripts exist as
+  shortcuts but skip the prompt — only suggest them if the user
+  explicitly wants to jump straight to one target.
+- **iOS Simulator via Expo Go is the primary preview surface.** Web is
+  only for the Figma export flow (`WEB_EXPORT.md`).
+- If Expo prompts "Install the recommended Expo Go version?" and the
+  fetch fails, the answer is **`n`** — the default is `yes` so a bare
+  Enter sends it into the failing download. The existing Expo Go on the
+  Simulator is compatible with SDK 54.
+
 ## Architecture
 
 - **React Native + Expo SDK ~54**, iOS-first, tested on Simulator via Expo Go.
@@ -38,6 +54,13 @@ in `src/prototype/scenarios.tsx`:
   `@react-native-async-storage/async-storage` when you need it).
 - Profile → Scenarios renders one section per tab with all registered
   variants. Tap to activate, tap again to clear.
+- **`src/prototype/_template/ScenarioTemplate.tsx`** is the canonical
+  starter. Never import it into `scenarios.tsx` — the leading underscore
+  signals "designer-facing example only". When asked to scaffold a new
+  scenario, copy this file rather than writing one from scratch.
+- **Web stakeholder browse:** `/scenarios` (also Profile → Scenarios
+  index on web) lists every registered variant with an "Open" link.
+  Hidden on native. Useful for sharing the whole prototype with a PM.
 - Deep-link a specific variant with `?scenario=<id>` in the web URL.
   Useful for sharing a single Home concept with PM/CEO.
 
@@ -96,9 +119,11 @@ d) **Clone content assets, don't recreate them.** Images, custom
 
 When asked to "publish to Expo Go" / "push an update":
 
-1. Run `eas update --branch main --message "<short summary>" --non-interactive`.
-2. Capture the **Update group ID** from the CLI output.
-3. Return the deep-link in this exact format so it opens in Expo Go:
+1. Prefer **`npm run share -- "<short summary>"`** — wraps `eas update`,
+   parses the Update Group ID, and prints the deep link ready to share.
+   Defined in `scripts/share.sh`.
+2. If running EAS directly, capture the **Update group ID** from CLI
+   output and assemble the link in the form:
 
    ```
    exp://u.expo.dev/<projectId>/group/<updateGroupId>
@@ -107,7 +132,7 @@ When asked to "publish to Expo Go" / "push an update":
    `<projectId>` lives in `app.json` under `expo.extra.eas.projectId`
    (set this on first publish via `npx eas project:init`).
 
-4. Do **not** return the bare `https://u.expo.dev/<projectId>` URL —
+3. Do **not** return the bare `https://u.expo.dev/<projectId>` URL —
    that endpoint 400s in a browser.
 
 ## Dev Kit (`src/screens/StylesScreen.tsx`)
@@ -115,3 +140,25 @@ When asked to "publish to Expo Go" / "push an update":
 Preview surface for design tokens and components — useful for regressions.
 Imports the real shared components, so any DS edit shows up here
 automatically.
+
+- Each section is wrapped in `<DevKitSection title="..." filter={filter}>`
+  so the sticky search field at the top filters live. Add `aliases` for
+  keywords designers might search ("toggle" → Switch).
+- Tokens (color / spacing / radius / typography / Satoshi family) are
+  tap-to-copy via `expo-clipboard` + a Toast.
+- When adding a new shared component, add a `DevKitSection` here too —
+  the Dev Kit is the canonical reference, not the source file.
+
+## Setup safety net
+
+`scripts/check-setup.js` runs on `prestart` and warns (non-fatal) when
+`package.json` `name` / `app.json` `expo.name|slug|extra.eas.projectId`
+still match the kit defaults. The kit itself ships a `.kit-template`
+sentinel file that silences the check — forks delete it as part of the
+After-cloning step in README.
+
+## Sharing
+
+Prefer **`npm run share -- "<message>"`** over raw `eas update`. The
+script lives at `scripts/share.sh` and prints the canonical
+`exp://u.expo.dev/<projectId>/group/<id>` link on the last line.
