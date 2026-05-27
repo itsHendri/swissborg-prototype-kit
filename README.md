@@ -65,9 +65,12 @@ Five-minute checklist for a freshly-forked prototype:
 - **Scenario system** — register variants of any tab in
   `src/prototype/scenarios.tsx`. Activate via Profile → Scenarios, or via
   `?scenario=<id>` URL param on web.
-- **Dev Kit screen** (Profile → Dev Kit) — live preview of every shared
-  component + design token, with a sticky search field and tap-to-copy
-  on every color/spacing/radius/type token.
+- **Two dev surfaces** under Profile, each with its own sticky search:
+  - **Components** — live preview of every shared component, with
+    interactive demos and a one-line API hint per section.
+  - **Styles** — design tokens (colors, spacing, radius, typography,
+    Satoshi family) and icon assets (Crypto, Glass, Premium). Every
+    swatch / row / icon tile is tap-to-copy.
 - **Scenarios index** (web only, `/scenarios` or Profile → Scenarios
   index) — flat list of every registered variant for stakeholder
   browsing without touching the Profile picker.
@@ -177,7 +180,8 @@ src/
     ├── MainLayout.tsx        floating header + tab content
     ├── ProfileScreen.tsx     Scenarios picker + dev surface links
     ├── ThemeScreen.tsx
-    ├── StylesScreen.tsx      Dev Kit (search + tap-to-copy tokens)
+    ├── ComponentsScreen.tsx  live shared-component preview
+    ├── StylesScreen.tsx      design tokens + asset catalog
     └── ScenariosIndexScreen.tsx  web-only stakeholder browse
 scripts/
 ├── check-setup.js            prestart sanity check (slug, EAS projectId)

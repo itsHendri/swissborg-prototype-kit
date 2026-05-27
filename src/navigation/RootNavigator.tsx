@@ -1,19 +1,23 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Platform } from 'react-native';
 import { COLORS } from '../constants/colors';
-import { MainLayout }    from '../screens/MainLayout';
-import { ProfileScreen } from '../screens/ProfileScreen';
-import { ThemeScreen }   from '../screens/ThemeScreen';
-import { StylesScreen }  from '../screens/StylesScreen';
+import { MainLayout }      from '../screens/MainLayout';
+import { ProfileScreen }   from '../screens/ProfileScreen';
+import { ThemeScreen }     from '../screens/ThemeScreen';
+import { StylesScreen }    from '../screens/StylesScreen';
+import { ComponentsScreen } from '../screens/ComponentsScreen';
 import { ScenariosIndexScreen } from '../screens/ScenariosIndexScreen';
 
 export type RootStackParamList = {
-  Main:    undefined;
-  Profile: undefined;
-  Theme:   undefined;
-  Styles:  undefined;
+  Main:       undefined;
+  Profile:    undefined;
+  Theme:      undefined;
+  /** Design-token + asset catalog. */
+  Styles:     undefined;
+  /** Live preview of every shared component. */
+  Components: undefined;
   /** Web-only. Hidden on native — see ScenariosIndexScreen for context. */
-  Scenarios: undefined;
+  Scenarios:  undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -26,10 +30,11 @@ export function RootNavigator() {
         contentStyle: { backgroundColor: COLORS.background },
       }}
     >
-      <Stack.Screen name="Main"    component={MainLayout} />
-      <Stack.Screen name="Profile" component={ProfileScreen} options={{ animation: 'slide_from_left' }} />
-      <Stack.Screen name="Theme"   component={ThemeScreen} />
-      <Stack.Screen name="Styles"  component={StylesScreen} options={{ presentation: 'fullScreenModal' }} />
+      <Stack.Screen name="Main"       component={MainLayout} />
+      <Stack.Screen name="Profile"    component={ProfileScreen} options={{ animation: 'slide_from_left' }} />
+      <Stack.Screen name="Theme"      component={ThemeScreen} />
+      <Stack.Screen name="Styles"     component={StylesScreen}     options={{ presentation: 'fullScreenModal' }} />
+      <Stack.Screen name="Components" component={ComponentsScreen} options={{ presentation: 'fullScreenModal' }} />
       {Platform.OS === 'web' ? (
         <Stack.Screen name="Scenarios" component={ScenariosIndexScreen} />
       ) : null}

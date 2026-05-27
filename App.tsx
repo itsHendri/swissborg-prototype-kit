@@ -47,11 +47,12 @@ const linking: LinkingOptions<RootStackParamList> = {
   prefixes: [],
   config: {
     screens: {
-      Main:      '',
-      Profile:   'profile',
-      Theme:     'theme',
-      Styles:    'styles',
-      Scenarios: 'scenarios',
+      Main:       '',
+      Profile:    'profile',
+      Theme:      'theme',
+      Styles:     'styles',
+      Components: 'components',
+      Scenarios:  'scenarios',
     },
   },
 };

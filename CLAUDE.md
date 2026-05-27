@@ -147,19 +147,25 @@ When asked to "publish to Expo Go" / "push an update":
 3. Do **not** return the bare `https://u.expo.dev/<projectId>` URL —
    that endpoint 400s in a browser.
 
-## Dev Kit (`src/screens/StylesScreen.tsx`)
+## Dev surfaces
 
-Preview surface for design tokens and components — useful for regressions.
-Imports the real shared components, so any DS edit shows up here
-automatically.
+Two sister screens, both reachable from Profile and both sharing the
+same `<DevKitSection>` filter pattern:
 
-- Each section is wrapped in `<DevKitSection title="..." filter={filter}>`
-  so the sticky search field at the top filters live. Add `aliases` for
-  keywords designers might search ("toggle" → Switch).
-- Tokens (color / spacing / radius / typography / Satoshi family) are
-  tap-to-copy via `expo-clipboard` + a Toast.
-- When adding a new shared component, add a `DevKitSection` here too —
-  the Dev Kit is the canonical reference, not the source file.
+- **`src/screens/ComponentsScreen.tsx`** (route `Components`,
+  URL `/components`) — live preview of every shared component, with
+  interactive demos and a one-line API hint per section. Add a
+  `DevKitSection` here whenever a new shared component lands.
+- **`src/screens/StylesScreen.tsx`** (route `Styles`, URL `/styles`)
+  — design tokens (colors / spacing / radius / typography / Satoshi
+  family) and icon catalogs (CryptoIcon, GlassIcon, PremiumIcon).
+  Every swatch / row / icon tile is tap-to-copy via `expo-clipboard`
+  + a Toast. Add a section here whenever a new token category lands.
+
+Both screens import the *real* shared components / tokens, so any DS
+edit shows up automatically — no separate fixture to maintain. Each
+`<DevKitSection>` takes optional `aliases` for keyword search ("toggle"
+→ Switch, "graph" → LineChart).
 
 ## Setup safety net
 

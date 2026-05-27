@@ -3,27 +3,19 @@ import { Animated, Easing, Pressable, View } from 'react-native';
 import { COLORS } from '../../constants/colors';
 import { RADIUS } from '../../constants/ui';
 
-export type SwitchSize = 'sm' | 'md';
-
 type Props = {
   value: boolean;
   onValueChange: (next: boolean) => void;
-  /** Default: 'md' (iOS-standard 51×31). 'sm' is 40×24 — for dense rows. */
-  size?: SwitchSize;
   disabled?: boolean;
 };
 
-type SizeSpec = {
-  trackW: number;
-  trackH: number;
-  thumb: number;
-  inset: number;
-};
-
-const SIZES: Record<SwitchSize, SizeSpec> = {
-  sm: { trackW: 40, trackH: 24, thumb: 20, inset: 2 },
-  md: { trackW: 51, trackH: 31, thumb: 27, inset: 2 },
-};
+// iOS-standard track / thumb dimensions — large enough to be a comfortable
+// touch target. We deliberately removed the previous 'sm' size: it was
+// too small for accessibility and rarely fit a real settings row anyway.
+const TRACK_W = 51;
+const TRACK_H = 31;
+const THUMB   = 27;
+const INSET   = 2;
 
 /**
  * iOS-style on/off toggle. Accent track when on, surface track when off.
@@ -36,8 +28,7 @@ const SIZES: Record<SwitchSize, SizeSpec> = {
  *     trailing={<Switch value={enabled} onValueChange={setEnabled} />}
  *   />
  */
-export function Switch({ value, onValueChange, size = 'md', disabled = false }: Props) {
-  const s = SIZES[size];
+export function Switch({ value, onValueChange, disabled = false }: Props) {
   const anim = useRef(new Animated.Value(value ? 1 : 0)).current;
 
   useEffect(() => {
@@ -55,7 +46,7 @@ export function Switch({ value, onValueChange, size = 'md', disabled = false }: 
   });
   const thumbTranslate = anim.interpolate({
     inputRange: [0, 1],
-    outputRange: [0, s.trackW - s.thumb - s.inset * 2],
+    outputRange: [0, TRACK_W - THUMB - INSET * 2],
   });
 
   return (
@@ -69,19 +60,19 @@ export function Switch({ value, onValueChange, size = 'md', disabled = false }: 
     >
       <Animated.View
         style={{
-          width: s.trackW,
-          height: s.trackH,
+          width: TRACK_W,
+          height: TRACK_H,
           borderRadius: RADIUS.full,
           backgroundColor: trackColor,
-          padding: s.inset,
+          padding: INSET,
           borderWidth: 1,
           borderColor: 'rgba(255,255,255,0.06)',
         }}
       >
         <Animated.View
           style={{
-            width: s.thumb,
-            height: s.thumb,
+            width: THUMB,
+            height: THUMB,
             borderRadius: RADIUS.full,
             backgroundColor: COLORS.foreground,
             transform: [{ translateX: thumbTranslate }],

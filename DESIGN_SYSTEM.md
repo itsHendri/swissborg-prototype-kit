@@ -236,7 +236,7 @@ same intent. Premature abstraction is worse than duplication.
 | `GlassIcon`  | `src/components/shared/GlassIcon.tsx`    | Branded green-glass PNG · `name` from static map · standard size `100` |
 | `PremiumIcon`| `src/components/shared/PremiumIcon.tsx`  | Large-format illustrated PNG for hero / empty-state / story surfaces · `name` from static map · standard size `160` |
 | `GlassNavButton` | `src/components/shared/GlassNavButton.tsx` | 36×36 glass button · used for back/close in `PageTitleBar` and success screens |
-| `Switch`     | `src/components/shared/Switch.tsx`       | iOS-style on/off toggle · `size`: sm/md · accent track when on · pair with `ListRow` trailing slot |
+| `Switch`     | `src/components/shared/Switch.tsx`       | iOS-style on/off toggle (51×31 — single size for accessibility) · accent track when on · pair with `ListRow` trailing slot |
 | `PercentChange` | `src/components/shared/PercentChange.tsx` | Signed % with directional color + arrow · `variant`: text/pill · `size`: sm/md · `arrow`, `precision` |
 | `ProgressBar` | `src/components/shared/ProgressBar.tsx`  | Linear determinate progress (0–1) · `tone`: accent/warning/destructive/info · `size`: sm/md/lg · optional `label` + `trailingLabel` |
 
@@ -254,7 +254,7 @@ same intent. Premature abstraction is worse than duplication.
 | `UploadTile`  | `src/components/shared/UploadTile.tsx`    | KYC document upload affordance · `status`: empty/uploaded/error · mock-only (no real file picker) |
 | `Stepper`     | `src/components/shared/Stepper.tsx`       | Horizontal numbered progress · `current`/`total`/`labels?` · `variant`: numbered/compact · distinct from `PagerDots` (labeled and ordered) |
 | `Accordion`   | `src/components/shared/Accordion.tsx`     | Collapsible section · chevron rotate · `LayoutAnimation` body reveal · nest inside `<Card padding="rows">` |
-| `TimeRangePicker` | `src/components/shared/TimeRangePicker.tsx` | Segmented pill row for chart ranges (`1H · 1D · 1W · 1M · 1Y · All`) · `size`: sm/md · fires `useHaptic('selection')` on change · denser than `TabSwitcher` |
+| `TimeRangePicker` | `src/components/shared/TimeRangePicker.tsx` | Segmented pill row for chart ranges (`1H · 1D · 1W · 1M · 1Y · All`) · single 32h size for tap-target accessibility · fires `useHaptic('selection')` on change · denser than `TabSwitcher` |
 
 ### Organisms
 

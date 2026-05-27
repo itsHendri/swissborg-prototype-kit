@@ -23,18 +23,16 @@ type Props<T extends string> = {
   ranges: readonly T[];
   value: T;
   onChange: (next: T) => void;
-  /** Default: 'md' — 32h pill. 'sm' is 24h for ultra-dense rows. */
-  size?: 'sm' | 'md';
 };
+
+const PILL_HEIGHT = 32;
 
 export function TimeRangePicker<T extends string>({
   ranges,
   value,
   onChange,
-  size = 'md',
 }: Props<T>) {
   const haptic = useHaptic('selection');
-  const h = size === 'sm' ? 24 : 32;
 
   return (
     <View
@@ -55,7 +53,7 @@ export function TimeRangePicker<T extends string>({
             hitSlop={6}
             style={{
               flex: 1,
-              height: h,
+              height: PILL_HEIGHT,
               borderRadius: RADIUS.full,
               alignItems: 'center',
               justifyContent: 'center',

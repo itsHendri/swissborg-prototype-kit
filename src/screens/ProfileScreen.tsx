@@ -108,9 +108,18 @@ export function ProfileScreen() {
             onPress={() => navigation.navigate('Theme')}
           />
           <ListRow
-            leading={<IconCircle><Ionicons name="color-palette-outline" size={18} color={COLORS.foreground} /></IconCircle>}
-            primary="Dev Kit"
+            leading={<IconCircle><Ionicons name="grid-outline" size={18} color={COLORS.foreground} /></IconCircle>}
+            primary="Components"
             primaryWeight="semibold"
+            secondary="Live preview of every shared component"
+            trailing={<MenuTrailing badge={<Badge label="DEV" tone="dev" />} />}
+            onPress={() => navigation.navigate('Components')}
+          />
+          <ListRow
+            leading={<IconCircle><Ionicons name="color-palette-outline" size={18} color={COLORS.foreground} /></IconCircle>}
+            primary="Styles"
+            primaryWeight="semibold"
+            secondary="Colors, spacing, type, icon assets"
             trailing={<MenuTrailing badge={<Badge label="DEV" tone="dev" />} />}
             onPress={() => navigation.navigate('Styles')}
             last={Platform.OS !== 'web'}
