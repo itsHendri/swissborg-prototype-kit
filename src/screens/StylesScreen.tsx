@@ -43,6 +43,13 @@ import { StatusTimeline } from '../components/shared/StatusTimeline';
 import { UploadTile } from '../components/shared/UploadTile';
 import { DevKitSection } from '../components/shared/DevKitSection';
 
+// Phase A — Portfolio & Numbers
+import { LineChart, type LinePoint } from '../components/shared/LineChart';
+import { TimeRangePicker, DEFAULT_TIME_RANGES, type DefaultRange } from '../components/shared/TimeRangePicker';
+import { HeroBalance } from '../components/shared/HeroBalance';
+import { ProgressBar } from '../components/shared/ProgressBar';
+import { useHaptic } from '../hooks/useHaptic';
+
 import { AppHeader } from '../components/AppHeader';
 import { useToast } from '../context/ToastContext';
 
@@ -91,6 +98,19 @@ const PREMIUM_ICONS: PremiumIconName[] = [
   'bitcoinWallet', 'earn', 'solLoan', 'solUsdcLoan', 'swissBorgLoan', 'transaction',
 ];
 
+// Deterministic-ish portfolio chart sample (28 points, gentle upward drift).
+const SAMPLE_PORTFOLIO_VALUES: number[] = (() => {
+  const out: number[] = [];
+  let v = 18450;
+  for (let i = 0; i < 28; i++) {
+    // Pseudo-random walk seeded by i so the curve is stable across renders.
+    const wobble = Math.sin(i * 0.7) * 220 + Math.cos(i * 1.31) * 140;
+    v += wobble + 90;
+    out.push(Math.round(v));
+  }
+  return out;
+})();
+
 const SATOSHI_WEIGHTS: { label: string; family: string }[] = [
   { label: 'Satoshi Light 300',   family: 'Satoshi-Light'   },
   { label: 'Satoshi Regular 400', family: 'Satoshi-Regular' },
@@ -128,6 +148,12 @@ export function StylesScreen() {
   const [switchB, setSwitchB] = useState(false);
   const [otp, setOtp]         = useState('');
   const [amount, setAmount]   = useState('1500');
+
+  // Phase A state
+  const [range, setRange]     = useState<DefaultRange>('1D');
+  const [progress, setProgress] = useState(0.45);
+  const [hoverPt, setHoverPt] = useState<LinePoint | null>(null);
+  const haptic = useHaptic();
 
   const copy = useCopier();
 
@@ -237,6 +263,138 @@ export function StylesScreen() {
           <Card padding="all">
             <View style={{ flexDirection: 'row', gap: SPACING.sm, flexWrap: 'wrap' }}>
               <ToastTriggers />
+            </View>
+          </Card>
+        </DevKitSection>
+
+        {/* ── HeroBalance ────────────────────────────────────────────── */}
+        <DevKitSection
+          title="HeroBalance"
+          aliases={['balance', 'hero number', 'portfolio total']}
+          filter={filter}
+          api="<HeroBalance label? value change? showVisibilityToggle? align? />"
+          caption="Top-of-screen big-number. Eye toggle wired to BalanceVisibilityContext — toggling here flips every other balance on screen."
+        >
+          <Card padding="all">
+            <HeroBalance
+              label="Total Balance"
+              value="€22,148.42"
+              change={{ amount: '+€572.30', percent: 2.65, period: '24H' }}
+            />
+          </Card>
+        </DevKitSection>
+
+        {/* ── LineChart ──────────────────────────────────────────────── */}
+        <DevKitSection
+          title="LineChart"
+          aliases={['chart', 'graph', 'sparkline', 'price chart']}
+          filter={filter}
+          api="<LineChart data variant? height? tone? area? domain? onPointerChange? />"
+          caption="Sparkline + interactive variants. Drag on the interactive chart below to see the crosshair + value readout."
+        >
+          <Card padding="all">
+            <View style={{ gap: SPACING.lg }}>
+              <View>
+                <Text style={[typography.label, { color: COLORS.foregroundMuted, marginBottom: SPACING.sm }]}>
+                  Interactive · area · accent
+                </Text>
+                <LineChart
+                  data={SAMPLE_PORTFOLIO_VALUES}
+                  height={160}
+                  area
+                  onPointerChange={setHoverPt}
+                />
+                <Text style={[typography.label, { color: COLORS.foregroundMuted, marginTop: SPACING.sm }]}>
+                  {hoverPt
+                    ? `Point ${hoverPt.x} → €${hoverPt.y.toLocaleString()}`
+                    : 'Drag across to inspect'}
+                </Text>
+              </View>
+              <View style={{ flexDirection: 'row', gap: SPACING.lg, flexWrap: 'wrap' }}>
+                <View style={{ flex: 1, minWidth: 120 }}>
+                  <Text style={[typography.label, { color: COLORS.foregroundMuted, marginBottom: SPACING.xs }]}>
+                    Sparkline · accent
+                  </Text>
+                  <LineChart variant="sparkline" data={SAMPLE_PORTFOLIO_VALUES} height={48} strokeWidth={1.5} />
+                </View>
+                <View style={{ flex: 1, minWidth: 120 }}>
+                  <Text style={[typography.label, { color: COLORS.foregroundMuted, marginBottom: SPACING.xs }]}>
+                    Sparkline · destructive
+                  </Text>
+                  <LineChart
+                    variant="sparkline"
+                    data={SAMPLE_PORTFOLIO_VALUES.slice().reverse()}
+                    tone="destructive"
+                    height={48}
+                    strokeWidth={1.5}
+                  />
+                </View>
+              </View>
+            </View>
+          </Card>
+        </DevKitSection>
+
+        {/* ── TimeRangePicker ────────────────────────────────────────── */}
+        <DevKitSection
+          title="TimeRangePicker"
+          aliases={['time range', 'chart range', '1d 1w 1m']}
+          filter={filter}
+          api="<TimeRangePicker ranges value onChange size? />"
+          caption="Denser than TabSwitcher — fits under a chart. Selection fires a 'selection' haptic on native."
+        >
+          <View style={{ gap: SPACING.md }}>
+            <TimeRangePicker ranges={DEFAULT_TIME_RANGES} value={range} onChange={setRange} />
+            <TimeRangePicker
+              ranges={['1H', '1D', '1W', '1M', '1Y', 'All'] as const}
+              value={range}
+              onChange={setRange}
+              size="sm"
+            />
+          </View>
+        </DevKitSection>
+
+        {/* ── ProgressBar ────────────────────────────────────────────── */}
+        <DevKitSection
+          title="ProgressBar"
+          aliases={['progress', 'bar', 'loading bar']}
+          filter={filter}
+          api="<ProgressBar value tone? size? label? trailingLabel? />"
+          caption="Linear determinate progress. Tap the buttons below to step through values."
+        >
+          <Card padding="all">
+            <View style={{ gap: SPACING.md }}>
+              <ProgressBar
+                value={progress}
+                label="Onboarding"
+                trailingLabel={`${Math.round(progress * 100)}%`}
+              />
+              <ProgressBar value={0.85} tone="warning" size="lg" label="LTV ratio" trailingLabel="85%" />
+              <ProgressBar value={0.32} tone="destructive" size="sm" />
+              <View style={{ flexDirection: 'row', gap: SPACING.sm }}>
+                <Button label="−10%" size="sm" variant="secondary" onPress={() => setProgress(p => Math.max(0, p - 0.1))} />
+                <Button label="+10%" size="sm" variant="secondary" onPress={() => setProgress(p => Math.min(1, p + 0.1))} />
+              </View>
+            </View>
+          </Card>
+        </DevKitSection>
+
+        {/* ── useHaptic ──────────────────────────────────────────────── */}
+        <DevKitSection
+          title="useHaptic"
+          aliases={['haptic', 'vibration', 'feedback', 'hooks']}
+          filter={filter}
+          api="const haptic = useHaptic(); haptic('selection' | 'success' | 'warning' | 'error' | 'impactLight'|'Medium'|'Heavy')"
+          caption="No-op on web. Tap a button to fire each kind on iOS / Android."
+        >
+          <Card padding="all">
+            <View style={{ flexDirection: 'row', gap: SPACING.sm, flexWrap: 'wrap' }}>
+              <Button label="selection"    size="sm" variant="secondary" onPress={() => haptic('selection')} />
+              <Button label="success"      size="sm" onPress={() => haptic('success')} />
+              <Button label="warning"      size="sm" variant="secondary" onPress={() => haptic('warning')} />
+              <Button label="error"        size="sm" variant="secondary" onPress={() => haptic('error')} />
+              <Button label="impactLight"  size="sm" variant="secondary" onPress={() => haptic('impactLight')} />
+              <Button label="impactMedium" size="sm" variant="secondary" onPress={() => haptic('impactMedium')} />
+              <Button label="impactHeavy"  size="sm" variant="secondary" onPress={() => haptic('impactHeavy')} />
             </View>
           </Card>
         </DevKitSection>

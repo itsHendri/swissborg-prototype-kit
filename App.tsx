@@ -34,6 +34,7 @@ import { ThemeProvider } from './src/context/ThemeContext';
 import { WatchlistProvider } from './src/context/WatchlistContext';
 import { DisplayCurrencyProvider } from './src/context/DisplayCurrencyContext';
 import { ToastProvider } from './src/context/ToastContext';
+import { BalanceVisibilityProvider } from './src/context/BalanceVisibilityContext';
 import { applyScenarioFromUrl } from './src/prototype/scenarios';
 
 // Web flow-capture nav ref (window.__nav). No-op on native.
@@ -69,20 +70,22 @@ function AppContent() {
     <DisplayCurrencyProvider>
       <NotificationsProvider>
         <WatchlistProvider>
-          <AppScrollProvider>
-            <TabChromeProvider>
-              <ToastProvider>
-                <NavigationContainer
-                  ref={navRef}
-                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                  linking={Platform.OS === 'web' ? (linking as any) : undefined}
-                >
-                  <StatusBar style="light" />
-                  <RootNavigator />
-                </NavigationContainer>
-              </ToastProvider>
-            </TabChromeProvider>
-          </AppScrollProvider>
+          <BalanceVisibilityProvider>
+            <AppScrollProvider>
+              <TabChromeProvider>
+                  <ToastProvider>
+                  <NavigationContainer
+                    ref={navRef}
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    linking={Platform.OS === 'web' ? (linking as any) : undefined}
+                  >
+                    <StatusBar style="light" />
+                    <RootNavigator />
+                  </NavigationContainer>
+                </ToastProvider>
+              </TabChromeProvider>
+            </AppScrollProvider>
+          </BalanceVisibilityProvider>
         </WatchlistProvider>
       </NotificationsProvider>
     </DisplayCurrencyProvider>

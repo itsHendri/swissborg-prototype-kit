@@ -238,6 +238,7 @@ same intent. Premature abstraction is worse than duplication.
 | `GlassNavButton` | `src/components/shared/GlassNavButton.tsx` | 36×36 glass button · used for back/close in `PageTitleBar` and success screens |
 | `Switch`     | `src/components/shared/Switch.tsx`       | iOS-style on/off toggle · `size`: sm/md · accent track when on · pair with `ListRow` trailing slot |
 | `PercentChange` | `src/components/shared/PercentChange.tsx` | Signed % with directional color + arrow · `variant`: text/pill · `size`: sm/md · `arrow`, `precision` |
+| `ProgressBar` | `src/components/shared/ProgressBar.tsx`  | Linear determinate progress (0–1) · `tone`: accent/warning/destructive/info · `size`: sm/md/lg · optional `label` + `trailingLabel` |
 
 ### Molecules
 
@@ -253,6 +254,7 @@ same intent. Premature abstraction is worse than duplication.
 | `UploadTile`  | `src/components/shared/UploadTile.tsx`    | KYC document upload affordance · `status`: empty/uploaded/error · mock-only (no real file picker) |
 | `Stepper`     | `src/components/shared/Stepper.tsx`       | Horizontal numbered progress · `current`/`total`/`labels?` · `variant`: numbered/compact · distinct from `PagerDots` (labeled and ordered) |
 | `Accordion`   | `src/components/shared/Accordion.tsx`     | Collapsible section · chevron rotate · `LayoutAnimation` body reveal · nest inside `<Card padding="rows">` |
+| `TimeRangePicker` | `src/components/shared/TimeRangePicker.tsx` | Segmented pill row for chart ranges (`1H · 1D · 1W · 1M · 1Y · All`) · `size`: sm/md · fires `useHaptic('selection')` on change · denser than `TabSwitcher` |
 
 ### Organisms
 
@@ -272,7 +274,33 @@ same intent. Premature abstraction is worse than duplication.
 | `QuoteCard`    | `src/components/shared/QuoteCard.tsx`       | Trade / swap confirmation summary · `from` + `to` sides + `meta` rows (rate/fee/slippage) · arrow in the middle |
 | `StatusTimeline` | `src/components/shared/StatusTimeline.tsx` | Vertical step list with `current` (0-indexed) · done/active/upcoming states · for transactions, KYC |
 | `Toast`        | `src/components/shared/Toast.tsx` + `src/context/ToastContext.tsx` | Imperative ephemeral notification — `useToast()` hook · tones: success/error/info/warning · auto-dismiss · stack newest on top |
+| `LineChart`    | `src/components/shared/LineChart.tsx`       | Time-series chart via `react-native-svg` · `variant`: sparkline (no axes) / interactive (touch crosshair + readout) · optional `area` gradient · `tone`: accent/destructive/warning/info/foreground · `onPointerChange(point)` for hero-balance hover state |
+| `HeroBalance`  | `src/components/shared/HeroBalance.tsx`     | Composite top-of-screen balance · `displayLarge` value + `PercentChange` + period · eye toggle wired to `BalanceVisibilityContext` · `align`: center/left |
 | `DevKitSection` | `src/components/shared/DevKitSection.tsx`  | Wrapper used **only** by `StylesScreen` — labelled section with `filter` and optional `api`/`caption`. Never render outside the Dev Kit. |
+
+### Charts & numbers
+
+- Use `LineChart` for any time-series. Prefer the `sparkline` variant
+  inside list rows + dense cards (height ≤ 60); use the default
+  `interactive` variant for hero/portfolio surfaces and feed
+  `onPointerChange` into the `HeroBalance` value to show the touched
+  price.
+- Use `PercentChange` (already an atom) inline in `HeroBalance` and
+  inside `ListRow`'s trailing slot — never reimplement the signed
+  formatting / colour rule.
+- Use `ProgressBar` for any 0–1 progress (KYC, staking lockup,
+  onboarding). For a labelled multi-step funnel, prefer `Stepper`.
+- `BalanceVisibilityContext` is global: any surface rendering a money
+  string should call `useBalanceVisible()` + `formatBalance(value,
+  visible)` so the eye toggle works end-to-end. Don't reimplement local
+  show/hide state.
+
+### Hooks
+
+- `useHaptic(boundKind?)` — wrapper over `expo-haptics`. Tap targets
+  use `'selection'`; success states (`SwipeToConfirm` complete, EAS
+  publish) use `'success'`; destructive confirms use `'impactHeavy'`.
+  No-ops on web. Source: `src/hooks/useHaptic.ts`.
 
 ### Feature-specific — Loans
 

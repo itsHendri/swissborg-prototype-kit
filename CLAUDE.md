@@ -32,6 +32,18 @@
 ## Architecture
 
 - **React Native + Expo SDK ~54**, iOS-first, tested on Simulator via Expo Go.
+- **Charts** use `react-native-svg` (already a dep) via the `LineChart`
+  component — never pull in `react-native-chart-kit`, `victory-native`,
+  or similar. The kit's chart story is one component with sparkline +
+  interactive variants.
+- **Balance visibility** is global state — wrap money values in
+  `formatBalance(value, useBalanceVisible().visible)` so the eye
+  toggle on `HeroBalance` masks every surface at once. Don't add local
+  show/hide state.
+- **Haptics** come from `useHaptic()` in `src/hooks/useHaptic.ts`.
+  Use it for any interactive state change worth confirming
+  ('selection' on chips/segments, 'success' on confirm,
+  'impactHeavy' for destructive). No-ops on web automatically.
 - **NativeWind v4** (Tailwind CSS for RN) + inline style objects.
 - **React Navigation** — native-stack for screens, bottom-tabs for the main tab bar.
 - Entry point: `App.tsx` → providers (`DisplayCurrency`, `Notifications`,
