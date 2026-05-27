@@ -257,6 +257,9 @@ same intent. Premature abstraction is worse than duplication.
 | `TimeRangePicker` | `src/components/shared/TimeRangePicker.tsx` | Segmented pill row for chart ranges (`1H · 1D · 1W · 1M · 1Y · All`) · single 32h size for tap-target accessibility · fires `useHaptic('selection')` on change · denser than `TabSwitcher` |
 | `AmountChips` | `src/components/shared/AmountChips.tsx`   | Preset-amount chip row · accent-on-active · `selection` haptic on tap · supports a "Custom" chip that maps to `__custom__` for the active key |
 | `TokenPickerChip` | `src/components/shared/TokenPickerChip.tsx` | `[icon · symbol · ▾]` chip for token selection · `size`: sm/md · omit `onPress` to render as a fixed display (no chevron) |
+| `SearchBar`   | `src/components/shared/SearchBar.tsx`     | Search field with leading magnifier + inline × clear · iOS-style animated `Cancel` link when `onCancel` is passed · distinct from `<TextField size="search" />` (composed affordances, search-mode-on-screen) |
+| `TransactionRow` | `src/components/shared/TransactionRow.tsx` | Specialized `ListRow` with `kind` (deposit/withdraw/swap/send/receive/earn/fee) · signed value colour · optional receipt-matched chip · auto-masks value + subValue via `BalanceVisibilityContext` |
+| `StickyFilterBar` | `src/components/shared/StickyFilterBar.tsx` | Horizontal `FilterChip` strip designed to pin under the title bar · use a sticky/animated wrapper at the parent for actual stickiness |
 
 ### Organisms
 
@@ -282,6 +285,10 @@ same intent. Premature abstraction is worse than duplication.
 | `SwapPanel`    | `src/components/shared/SwapPanel.tsx`       | Dual From/To stacked cards with center swap button · each side takes `{label, symbol, amount, caption?, onAmountChange?, onTokenPress?}` · distinct from `QuoteCard` (input vs. confirm) |
 | `SwipeToConfirm` | `src/components/shared/SwipeToConfirm.tsx` | Drag-to-confirm CTA · commits past 85% of the track · `success` haptic + locks thumb · `tone`: accent/destructive · reset by changing the `key` prop |
 | `InlineAlert`  | `src/components/shared/InlineAlert.tsx`     | Sticky in-screen banner · `tone`: info/success/warning/danger · optional `action` link + `onDismiss` × · distinct from `Toast` (ephemeral) |
+| `SearchableList` | `src/components/shared/SearchableList.tsx` | Composite picker shell · `SearchBar` + recent-chip row + filtered list · generic over item type with `matches(item, query)` + `renderItem` |
+| `DateGroupedList` | `src/components/shared/DateGroupedList.tsx` | Generic grouped list with uppercase date headers · pair with `TransactionRow` for activity feeds · `keyExtractor` + `renderItem` |
+| `SettingsGroup` | `src/components/shared/SettingsGroup.tsx`  | iOS-style grouped settings section · uppercase header + card of rows + optional footnote paragraph · stack multiple groups vertically |
+| `RefreshScroll` | `src/components/shared/RefreshScroll.tsx`  | Themed `ScrollView` + `RefreshControl` styled in the kit's accent · drop-in for any pull-to-refresh surface · `onRefresh` may return a Promise |
 | `DevKitSection` | `src/components/shared/DevKitSection.tsx`  | Wrapper used **only** by `StylesScreen` — labelled section with `filter` and optional `api`/`caption`. Never render outside the Dev Kit. |
 
 ### Charts & numbers

@@ -61,6 +61,15 @@ import { NumericKeypad } from '../components/shared/NumericKeypad';
 import { SwapPanel } from '../components/shared/SwapPanel';
 import { SwipeToConfirm } from '../components/shared/SwipeToConfirm';
 
+// Phase C — Lists, Search & Filtering
+import { SearchBar } from '../components/shared/SearchBar';
+import { SearchableList } from '../components/shared/SearchableList';
+import { DateGroupedList } from '../components/shared/DateGroupedList';
+import { TransactionRow, type TxKind } from '../components/shared/TransactionRow';
+import { StickyFilterBar } from '../components/shared/StickyFilterBar';
+import { SettingsGroup } from '../components/shared/SettingsGroup';
+import { RefreshScroll } from '../components/shared/RefreshScroll';
+
 import { AppHeader } from '../components/AppHeader';
 import { useToast } from '../context/ToastContext';
 
@@ -109,6 +118,17 @@ export function ComponentsScreen() {
   const [alertOpen, setAlertOpen]     = useState(true);
   const [swipeCount, setSwipeCount]   = useState(0);
   const [swipeKey, setSwipeKey]       = useState(0); // reset SwipeToConfirm
+
+  // Phase C state
+  const [searchQ, setSearchQ]         = useState('');
+  const [tokenQ, setTokenQ]           = useState('');
+  const [txFilter, setTxFilter]       = useState('all');
+  const [refreshTick, setRefreshTick] = useState(0);
+  const [settingsToggles, setSettingsToggles] = useState({
+    marketing: false,
+    productNews: true,
+    biometrics: true,
+  });
 
   const trimmedFilter = filter.trim();
   const summary = useMemo(() => {
@@ -612,6 +632,257 @@ export function ComponentsScreen() {
               <Button label="Restore dismissed alert" size="sm" variant="secondary" onPress={() => setAlertOpen(true)} />
             )}
           </View>
+        </DevKitSection>
+
+        {/* ── SearchBar ──────────────────────────────────────────────── */}
+        <DevKitSection
+          title="SearchBar"
+          aliases={['search field', 'find']}
+          filter={filter}
+          api="<SearchBar value onChangeText placeholder? autoFocus? onCancel? />"
+          caption="Search-mode field with inline ×. Pass onCancel to expose the iOS-style Cancel link."
+        >
+          <View style={{ paddingHorizontal: SPACING.xl, gap: SPACING.md }}>
+            <SearchBar
+              value={searchQ}
+              onChangeText={setSearchQ}
+              placeholder="Search transactions"
+              onCancel={() => setSearchQ('')}
+            />
+            <Text style={[typography.label, { color: COLORS.foregroundMuted }]}>
+              Query: {searchQ || '—'}
+            </Text>
+          </View>
+        </DevKitSection>
+
+        {/* ── SearchableList ─────────────────────────────────────────── */}
+        <DevKitSection
+          title="SearchableList"
+          aliases={['token picker', 'recipient picker', 'find list']}
+          filter={filter}
+          api="<SearchableList query onQueryChange items matches renderItem recents? onRecentPress? />"
+          caption="SearchBar + recent chips + filtered list. Drop into a BottomSheet for a token picker."
+        >
+          <SearchableList
+            query={tokenQ}
+            onQueryChange={setTokenQ}
+            placeholder="Search tokens"
+            recents={['BTC', 'ETH', 'USDC']}
+            onRecentPress={setTokenQ}
+            items={[
+              { sym: 'BTC',  name: 'Bitcoin',     bal: '0.42' },
+              { sym: 'ETH',  name: 'Ethereum',    bal: '4.21' },
+              { sym: 'SOL',  name: 'Solana',      bal: '120.5' },
+              { sym: 'USDC', name: 'USD Coin',    bal: '5,200' },
+              { sym: 'BORG', name: 'SwissBorg',   bal: '18,400' },
+              { sym: 'ADA',  name: 'Cardano',     bal: '320' },
+            ]}
+            keyExtractor={t => t.sym}
+            matches={(t, q) => {
+              const ql = q.toLowerCase();
+              return t.sym.toLowerCase().includes(ql) || t.name.toLowerCase().includes(ql);
+            }}
+            renderItem={(t, { last }) => (
+              <ListRow
+                leading={<CryptoIcon symbol={t.sym} size={36} />}
+                primary={t.name}
+                secondary={t.sym}
+                value={t.bal}
+                onPress={() => {}}
+                last={last}
+              />
+            )}
+          />
+        </DevKitSection>
+
+        {/* ── TransactionRow ─────────────────────────────────────────── */}
+        <DevKitSection
+          title="TransactionRow"
+          aliases={['tx row', 'transaction', 'activity']}
+          filter={filter}
+          api="<TransactionRow kind primary secondary? value subValue? valueColor? receiptMatched? onPress? last? />"
+          caption="Specialized ListRow — auto-masks money values via BalanceVisibilityContext."
+        >
+          <Card padding="rows">
+            <TransactionRow
+              kind="receive"
+              primary="Received BTC"
+              secondary="From Alice · 12:01"
+              value="+0.024 BTC"
+              subValue="≈ €1,040.00"
+            />
+            <TransactionRow
+              kind="swap"
+              primary="Swapped USDC → ETH"
+              secondary="Today · 09:42"
+              value="-1,200 USDC"
+              subValue="≈ €1,200.00"
+            />
+            <TransactionRow
+              kind="send"
+              primary="Sent ETH"
+              secondary="To 0xab…f4 · Yesterday"
+              value="-0.05 ETH"
+              subValue="≈ €260.00"
+              receiptMatched
+            />
+            <TransactionRow
+              kind="earn"
+              primary="Earn yield"
+              secondary="BTC vault · Oct 24"
+              value="+0.0003 BTC"
+              subValue="≈ €12.40"
+              last
+            />
+          </Card>
+        </DevKitSection>
+
+        {/* ── DateGroupedList ────────────────────────────────────────── */}
+        <DevKitSection
+          title="DateGroupedList"
+          aliases={['grouped list', 'date list', 'activity feed']}
+          filter={filter}
+          api="<DateGroupedList groups renderItem keyExtractor? cardPadding? />"
+          caption="Generic over the row type. Pair with TransactionRow for activity feeds."
+        >
+          <DateGroupedList
+            groups={[
+              {
+                label: 'Today',
+                items: [
+                  { id: 't1', kind: 'receive' as TxKind, primary: 'Received BTC',  secondary: '12:01', value: '+0.024 BTC', subValue: '≈ €1,040.00' },
+                  { id: 't2', kind: 'swap'    as TxKind, primary: 'Swapped USDC',   secondary: '09:42', value: '-1,200 USDC', subValue: '≈ €1,200.00' },
+                ],
+              },
+              {
+                label: 'Yesterday',
+                items: [
+                  { id: 'y1', kind: 'send' as TxKind, primary: 'Sent ETH', secondary: '17:30', value: '-0.05 ETH', subValue: '≈ €260.00' },
+                ],
+              },
+              {
+                label: 'October 2025',
+                items: [
+                  { id: 'o1', kind: 'earn'     as TxKind, primary: 'Earn yield',   secondary: 'BTC vault', value: '+0.0003 BTC', subValue: '≈ €12.40' },
+                  { id: 'o2', kind: 'withdraw' as TxKind, primary: 'Withdrew EUR', secondary: 'SEPA',      value: '-€500.00' },
+                ],
+              },
+            ]}
+            keyExtractor={t => t.id}
+            renderItem={(t, { last }) => (
+              <TransactionRow
+                kind={t.kind}
+                primary={t.primary}
+                secondary={t.secondary}
+                value={t.value}
+                subValue={t.subValue}
+                last={last}
+              />
+            )}
+          />
+        </DevKitSection>
+
+        {/* ── StickyFilterBar ────────────────────────────────────────── */}
+        <DevKitSection
+          title="StickyFilterBar"
+          aliases={['filter strip', 'filter bar']}
+          filter={filter}
+          api="<StickyFilterBar options=[{value,label}] active onChange blurred? />"
+          caption="Horizontal FilterChip strip — wrap in a sticky/animated parent to pin under the title bar."
+        >
+          <View style={{ gap: SPACING.md }}>
+            <StickyFilterBar
+              options={[
+                { value: 'all',      label: 'All' },
+                { value: 'deposit',  label: 'Deposits' },
+                { value: 'withdraw', label: 'Withdrawals' },
+                { value: 'swap',     label: 'Swaps' },
+                { value: 'earn',     label: 'Earn' },
+                { value: 'send',     label: 'Sent' },
+                { value: 'receive',  label: 'Received' },
+              ]}
+              active={txFilter}
+              onChange={setTxFilter}
+            />
+            <Text style={[typography.label, { color: COLORS.foregroundMuted, paddingHorizontal: SPACING.xl }]}>
+              Active: {txFilter}
+            </Text>
+          </View>
+        </DevKitSection>
+
+        {/* ── SettingsGroup ──────────────────────────────────────────── */}
+        <DevKitSection
+          title="SettingsGroup"
+          aliases={['settings section', 'preferences', 'grouped list']}
+          filter={filter}
+          api="<SettingsGroup title? footnote?>{<ListRow ... />}</SettingsGroup>"
+          caption="iOS-style grouped section. Pair with Switch in the trailing slot for toggle rows."
+        >
+          <SettingsGroup title="Notifications" footnote="You can change these anytime.">
+            <ListRow
+              leading={<IconCircle><Ionicons name="megaphone-outline" size={18} color={COLORS.foreground} /></IconCircle>}
+              primary="Marketing"
+              trailing={
+                <Switch
+                  value={settingsToggles.marketing}
+                  onValueChange={v => setSettingsToggles(s => ({ ...s, marketing: v }))}
+                />
+              }
+            />
+            <ListRow
+              leading={<IconCircle><Ionicons name="newspaper-outline" size={18} color={COLORS.foreground} /></IconCircle>}
+              primary="Product news"
+              trailing={
+                <Switch
+                  value={settingsToggles.productNews}
+                  onValueChange={v => setSettingsToggles(s => ({ ...s, productNews: v }))}
+                />
+              }
+              last
+            />
+          </SettingsGroup>
+          <SettingsGroup title="Security">
+            <ListRow
+              leading={<IconCircle><Ionicons name="finger-print-outline" size={18} color={COLORS.foreground} /></IconCircle>}
+              primary="Face ID / Touch ID"
+              trailing={
+                <Switch
+                  value={settingsToggles.biometrics}
+                  onValueChange={v => setSettingsToggles(s => ({ ...s, biometrics: v }))}
+                />
+              }
+              last
+            />
+          </SettingsGroup>
+        </DevKitSection>
+
+        {/* ── RefreshScroll ──────────────────────────────────────────── */}
+        <DevKitSection
+          title="RefreshScroll"
+          aliases={['pull to refresh', 'refresh control']}
+          filter={filter}
+          api="<RefreshScroll onRefresh>{children}</RefreshScroll>"
+          caption="ScrollView with a kit-themed RefreshControl. Drop in for any pull-to-refresh surface."
+        >
+          <Card padding="none" style={{ height: 200, overflow: 'hidden' }}>
+            <RefreshScroll
+              style={{ flex: 1 }}
+              contentContainerStyle={{ padding: SPACING.lg }}
+              onRefresh={async () => {
+                await new Promise(r => setTimeout(r, 900));
+                setRefreshTick(t => t + 1);
+              }}
+            >
+              <Text style={[typography.bodySemibold, { color: COLORS.foreground }]}>Scroll up + pull to refresh</Text>
+              <Text style={[typography.label, { color: COLORS.foregroundMuted, marginTop: SPACING.xs }]}>
+                Refreshes fired this session: {refreshTick}
+              </Text>
+              <View style={{ height: 280 }} />
+              <Text style={[typography.label, { color: COLORS.foregroundMuted }]}>
+                Bottom of the scroll area.
+              </Text>
+            </RefreshScroll>
+          </Card>
         </DevKitSection>
 
         {/* ── QuoteCard ──────────────────────────────────────────────── */}

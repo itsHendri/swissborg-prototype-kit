@@ -51,6 +51,14 @@
   drag-to-commit CTA for high-stakes actions. Use them as a kit — pair
   `AmountInput` + `NumericKeypad` for entry, `QuoteCard` + `SwipeToConfirm`
   for confirm.
+- **List + discovery patterns:** `TransactionRow` is the canonical
+  activity row (auto-masks via `BalanceVisibilityContext`).
+  `DateGroupedList` groups any rows under date headers — pair with
+  `TransactionRow` for activity feeds. `SearchableList` is the picker
+  shell (BottomSheet token/recipient pickers should use it).
+  `StickyFilterBar` is a `FilterChip` strip designed to pin under the
+  title bar. `SettingsGroup` wraps iOS-style settings sections.
+  `RefreshScroll` is the drop-in pull-to-refresh wrapper.
 - **NativeWind v4** (Tailwind CSS for RN) + inline style objects.
 - **React Navigation** — native-stack for screens, bottom-tabs for the main tab bar.
 - Entry point: `App.tsx` → providers (`DisplayCurrency`, `Notifications`,
