@@ -255,6 +255,8 @@ same intent. Premature abstraction is worse than duplication.
 | `Stepper`     | `src/components/shared/Stepper.tsx`       | Horizontal numbered progress · `current`/`total`/`labels?` · `variant`: numbered/compact · distinct from `PagerDots` (labeled and ordered) |
 | `Accordion`   | `src/components/shared/Accordion.tsx`     | Collapsible section · chevron rotate · `LayoutAnimation` body reveal · nest inside `<Card padding="rows">` |
 | `TimeRangePicker` | `src/components/shared/TimeRangePicker.tsx` | Segmented pill row for chart ranges (`1H · 1D · 1W · 1M · 1Y · All`) · single 32h size for tap-target accessibility · fires `useHaptic('selection')` on change · denser than `TabSwitcher` |
+| `AmountChips` | `src/components/shared/AmountChips.tsx`   | Preset-amount chip row · accent-on-active · `selection` haptic on tap · supports a "Custom" chip that maps to `__custom__` for the active key |
+| `TokenPickerChip` | `src/components/shared/TokenPickerChip.tsx` | `[icon · symbol · ▾]` chip for token selection · `size`: sm/md · omit `onPress` to render as a fixed display (no chevron) |
 
 ### Organisms
 
@@ -276,6 +278,10 @@ same intent. Premature abstraction is worse than duplication.
 | `Toast`        | `src/components/shared/Toast.tsx` + `src/context/ToastContext.tsx` | Imperative ephemeral notification — `useToast()` hook · tones: success/error/info/warning · auto-dismiss · stack newest on top |
 | `LineChart`    | `src/components/shared/LineChart.tsx`       | Time-series chart via `react-native-svg` · `variant`: sparkline (no axes) / interactive (touch crosshair + readout) · optional `area` gradient · `tone`: accent/destructive/warning/info/foreground · `onPointerChange(point)` for hero-balance hover state |
 | `HeroBalance`  | `src/components/shared/HeroBalance.tsx`     | Composite top-of-screen balance · `displayLarge` value + `PercentChange` + period · eye toggle wired to `BalanceVisibilityContext` · `align`: center/left |
+| `NumericKeypad` | `src/components/shared/NumericKeypad.tsx`  | In-app 3×4 numeric keypad (0–9, `.`, ⌫) · replaces system keyboard for full-screen amount entry · long-press ⌫ to clear · `selection` haptic per tap, `impactLight/Medium` on backspace |
+| `SwapPanel`    | `src/components/shared/SwapPanel.tsx`       | Dual From/To stacked cards with center swap button · each side takes `{label, symbol, amount, caption?, onAmountChange?, onTokenPress?}` · distinct from `QuoteCard` (input vs. confirm) |
+| `SwipeToConfirm` | `src/components/shared/SwipeToConfirm.tsx` | Drag-to-confirm CTA · commits past 85% of the track · `success` haptic + locks thumb · `tone`: accent/destructive · reset by changing the `key` prop |
+| `InlineAlert`  | `src/components/shared/InlineAlert.tsx`     | Sticky in-screen banner · `tone`: info/success/warning/danger · optional `action` link + `onDismiss` × · distinct from `Toast` (ephemeral) |
 | `DevKitSection` | `src/components/shared/DevKitSection.tsx`  | Wrapper used **only** by `StylesScreen` — labelled section with `filter` and optional `api`/`caption`. Never render outside the Dev Kit. |
 
 ### Charts & numbers

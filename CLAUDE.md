@@ -44,6 +44,13 @@
   Use it for any interactive state change worth confirming
   ('selection' on chips/segments, 'success' on confirm,
   'impactHeavy' for destructive). No-ops on web automatically.
+- **Money-movement primitives:** `AmountInput` is the styled text field;
+  `NumericKeypad` is the in-app numeric pad that replaces the system
+  keyboard on full-screen entry; `SwapPanel` is the dual From/To input;
+  `QuoteCard` is the read-only confirm summary; `SwipeToConfirm` is the
+  drag-to-commit CTA for high-stakes actions. Use them as a kit — pair
+  `AmountInput` + `NumericKeypad` for entry, `QuoteCard` + `SwipeToConfirm`
+  for confirm.
 - **NativeWind v4** (Tailwind CSS for RN) + inline style objects.
 - **React Navigation** — native-stack for screens, bottom-tabs for the main tab bar.
 - Entry point: `App.tsx` → providers (`DisplayCurrency`, `Notifications`,

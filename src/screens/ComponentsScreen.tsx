@@ -53,6 +53,14 @@ import { HeroBalance } from '../components/shared/HeroBalance';
 import { ProgressBar } from '../components/shared/ProgressBar';
 import { useHaptic } from '../hooks/useHaptic';
 
+// Phase B — Money Movement
+import { InlineAlert } from '../components/shared/InlineAlert';
+import { AmountChips, type AmountChipOption } from '../components/shared/AmountChips';
+import { TokenPickerChip } from '../components/shared/TokenPickerChip';
+import { NumericKeypad } from '../components/shared/NumericKeypad';
+import { SwapPanel } from '../components/shared/SwapPanel';
+import { SwipeToConfirm } from '../components/shared/SwipeToConfirm';
+
 import { AppHeader } from '../components/AppHeader';
 import { useToast } from '../context/ToastContext';
 
@@ -90,6 +98,17 @@ export function ComponentsScreen() {
   const [progress, setProgress] = useState(0.45);
   const [hoverPt, setHoverPt] = useState<LinePoint | null>(null);
   const haptic = useHaptic();
+
+  // Phase B state
+  const [keypadValue, setKeypadValue] = useState('0');
+  const [chipValue, setChipValue]     = useState<string | undefined>('5');
+  const [swapFrom, setSwapFrom]       = useState('0.50');
+  const [swapTo,   setSwapTo]         = useState('4.21');
+  const [swapFromSym, setSwapFromSym] = useState('BTC');
+  const [swapToSym,   setSwapToSym]   = useState('ETH');
+  const [alertOpen, setAlertOpen]     = useState(true);
+  const [swipeCount, setSwipeCount]   = useState(0);
+  const [swipeKey, setSwipeKey]       = useState(0); // reset SwipeToConfirm
 
   const trimmedFilter = filter.trim();
   const summary = useMemo(() => {
@@ -426,6 +445,172 @@ export function ComponentsScreen() {
               symbolPosition="trailing"
               helper="≈ €22,600"
             />
+          </View>
+        </DevKitSection>
+
+        {/* ── AmountChips ────────────────────────────────────────────── */}
+        <DevKitSection
+          title="AmountChips"
+          aliases={['preset amounts', 'quick amounts', 'tips']}
+          filter={filter}
+          api="<AmountChips options=[{label,value}|{label,custom}] active onSelect />"
+          caption="Preset-amount row for tipping, top-ups, suggested deposits. Pair with AmountInput."
+        >
+          <AmountChips
+            active={chipValue}
+            onSelect={opt =>
+              'value' in opt ? setChipValue(opt.value) : setChipValue('__custom__')
+            }
+            options={[
+              { label: '€0',     value: '0' },
+              { label: '€1',     value: '1' },
+              { label: '€5',     value: '5' },
+              { label: '€10',    value: '10' },
+              { label: 'Custom', custom: true },
+            ]}
+          />
+        </DevKitSection>
+
+        {/* ── TokenPickerChip ────────────────────────────────────────── */}
+        <DevKitSection
+          title="TokenPickerChip"
+          aliases={['token chip', 'currency picker']}
+          filter={filter}
+          api="<TokenPickerChip symbol onPress? size? />"
+          caption="Embeddable token chip. Opens a token-picker BottomSheet on press; render without onPress for a fixed pair."
+        >
+          <Card padding="all">
+            <View style={{ flexDirection: 'row', gap: SPACING.md, alignItems: 'center', flexWrap: 'wrap' }}>
+              <TokenPickerChip symbol="BTC"  onPress={() => {}} />
+              <TokenPickerChip symbol="ETH"  onPress={() => {}} />
+              <TokenPickerChip symbol="USDC" onPress={() => {}} />
+              <TokenPickerChip symbol="SOL"  size="sm" onPress={() => {}} />
+              <TokenPickerChip symbol="BORG" />
+            </View>
+          </Card>
+        </DevKitSection>
+
+        {/* ── NumericKeypad ──────────────────────────────────────────── */}
+        <DevKitSection
+          title="NumericKeypad"
+          aliases={['numpad', 'in-app keyboard', 'amount entry']}
+          filter={filter}
+          api="<NumericKeypad value onChange maxLength? allowDecimal? disabled? />"
+          caption="In-app 3×4 numpad. Long-press ⌫ to clear. Selection haptic on every tap."
+        >
+          <View style={{ gap: SPACING.lg }}>
+            <Card padding="all">
+              <Text style={[typography.label, { color: COLORS.foregroundMuted }]}>Current value</Text>
+              <Text style={[typography.display, { color: COLORS.foreground, marginTop: SPACING.xs }]}>
+                {keypadValue || '0'}
+              </Text>
+            </Card>
+            <NumericKeypad value={keypadValue} onChange={setKeypadValue} maxLength={10} />
+          </View>
+        </DevKitSection>
+
+        {/* ── SwapPanel ──────────────────────────────────────────────── */}
+        <DevKitSection
+          title="SwapPanel"
+          aliases={['swap input', 'exchange', 'trade panel']}
+          filter={filter}
+          api="<SwapPanel from to onSwapDirection? />"
+          caption="Dual From/To input with center swap button. Use QuoteCard on the confirm screen, not here."
+        >
+          <SwapPanel
+            from={{
+              label: 'You send',
+              symbol: swapFromSym,
+              amount: swapFrom,
+              caption: `Balance: 0.42 ${swapFromSym}`,
+              onAmountChange: setSwapFrom,
+              onTokenPress: () => {},
+            }}
+            to={{
+              label: 'You get',
+              symbol: swapToSym,
+              amount: swapTo,
+              caption: '≈ €22,520',
+              onAmountChange: setSwapTo,
+              onTokenPress: () => {},
+            }}
+            onSwapDirection={() => {
+              setSwapFromSym(swapToSym);
+              setSwapToSym(swapFromSym);
+              setSwapFrom(swapTo);
+              setSwapTo(swapFrom);
+            }}
+          />
+        </DevKitSection>
+
+        {/* ── SwipeToConfirm ─────────────────────────────────────────── */}
+        <DevKitSection
+          title="SwipeToConfirm"
+          aliases={['slide to confirm', 'drag to send', 'confirm cta']}
+          filter={filter}
+          api="<SwipeToConfirm label onConfirm confirmLabel? tone? disabled? />"
+          caption="Drag-to-confirm CTA. Fires a 'success' haptic on commit. Confirmed: {count} times this session."
+        >
+          <View style={{ paddingHorizontal: SPACING.xl, gap: SPACING.md }}>
+            <SwipeToConfirm
+              key={swipeKey}
+              label="Slide to send €120.50"
+              onConfirm={() => setSwipeCount(c => c + 1)}
+            />
+            <SwipeToConfirm
+              key={swipeKey + 1000}
+              label="Slide to delete account"
+              confirmLabel="Deleted"
+              tone="destructive"
+              onConfirm={() => setSwipeCount(c => c + 1)}
+            />
+            <View style={{ flexDirection: 'row', gap: SPACING.sm }}>
+              <Button label="Reset" size="sm" variant="secondary" onPress={() => setSwipeKey(k => k + 1)} />
+              <View style={{ flex: 1, alignItems: 'flex-end', justifyContent: 'center' }}>
+                <Text style={[typography.label, { color: COLORS.foregroundMuted }]}>
+                  Confirmed {swipeCount}× this session
+                </Text>
+              </View>
+            </View>
+          </View>
+        </DevKitSection>
+
+        {/* ── InlineAlert ────────────────────────────────────────────── */}
+        <DevKitSection
+          title="InlineAlert"
+          aliases={['banner', 'alert', 'in-screen notice']}
+          filter={filter}
+          api="<InlineAlert tone? title? message? action? onDismiss? icon? />"
+          caption="Sticky in-screen banner. Distinct from Toast — InlineAlert stays until dismissed."
+        >
+          <View style={{ paddingHorizontal: SPACING.xl, gap: SPACING.md }}>
+            <InlineAlert
+              tone="info"
+              title="Heads-up"
+              message="Trading on the BORG pair is paused for maintenance until 18:00 UTC."
+              action={{ label: 'Read status page', onPress: () => {} }}
+            />
+            <InlineAlert
+              tone="success"
+              message="Your KYC submission is complete. Most accounts verify within 24h."
+            />
+            <InlineAlert
+              tone="warning"
+              title="Slippage is high"
+              message="Estimated slippage of 4.2% — your trade could execute below the quoted rate."
+              action={{ label: 'Adjust', onPress: () => {} }}
+            />
+            {alertOpen ? (
+              <InlineAlert
+                tone="danger"
+                title="LTV is approaching the liquidation threshold"
+                message="At 82% your collateral may be sold. Add funds or repay."
+                action={{ label: 'Add collateral', onPress: () => {} }}
+                onDismiss={() => setAlertOpen(false)}
+              />
+            ) : (
+              <Button label="Restore dismissed alert" size="sm" variant="secondary" onPress={() => setAlertOpen(true)} />
+            )}
           </View>
         </DevKitSection>
 

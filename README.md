@@ -54,14 +54,16 @@ Five-minute checklist for a freshly-forked prototype:
   floating glass header, Profile push, full-screen Dev Kit modal.
 - **Design system** — colour, typography, spacing, radius tokens in
   `src/constants/`. Mirror in `tailwind.config.js`. See `DESIGN_SYSTEM.md`.
-- **~42 shared components** — primitives (Button, Card, ListRow,
+- **~48 shared components** — primitives (Button, Card, ListRow,
   BottomSheet, TextField, StickyBottomBar, PageTitleBar), charts &
   numbers (LineChart, HeroBalance, PercentChange, ProgressBar,
-  TimeRangePicker), feedback (Toast, EmptyState, SuccessScreen,
-  ShimmerGrid), forms (Switch, OtpInput, AmountInput, UploadTile),
-  flow scaffolding (Stepper, QuoteCard, StatusTimeline, Accordion),
-  iconography (GlassIcon, PremiumIcon, CryptoIcon), plus the
-  `useHaptic` hook and `BalanceVisibility` context.
+  TimeRangePicker), money movement (NumericKeypad, SwapPanel,
+  TokenPickerChip, AmountChips, SwipeToConfirm, QuoteCard), feedback
+  (Toast, InlineAlert, EmptyState, SuccessScreen, ShimmerGrid), forms
+  (Switch, OtpInput, AmountInput, UploadTile), flow scaffolding
+  (Stepper, StatusTimeline, Accordion), iconography (GlassIcon,
+  PremiumIcon, CryptoIcon), plus the `useHaptic` hook and
+  `BalanceVisibility` context.
 - **Scenario system** — register variants of any tab in
   `src/prototype/scenarios.tsx`. Activate via Profile → Scenarios, or via
   `?scenario=<id>` URL param on web.
