@@ -59,6 +59,19 @@
   `StickyFilterBar` is a `FilterChip` strip designed to pin under the
   title bar. `SettingsGroup` wraps iOS-style settings sections.
   `RefreshScroll` is the drop-in pull-to-refresh wrapper.
+- **Onboarding / KYC primitives:** `CountrySelect` is the searchable
+  flag picker (built on `SearchableList`). `CameraGuide` and
+  `DocumentScanFrame` are **mock-only** capture affordances —
+  `onCapture` advances the step, no real camera. `UploadTile` is the
+  pre-camera fallback for desktop/file flows. Pair any of these with
+  `Stepper` above and a `StickyBottomBar` CTA below.
+- **Action sheets vs. option pickers:** `ActionSheet` lists actions
+  (each row a different callback). `BottomSheet` picks one value from
+  N options. Don't reach for `BottomSheet` for a Share / Report / Hide
+  menu — that's `ActionSheet`.
+- **Regulated copy:** drop an `<InfoTooltip>` next to APY, fees,
+  slippage, holding-period labels. Pattern is universal in fintech
+  and avoids cluttering the layout with explanatory paragraphs.
 - **NativeWind v4** (Tailwind CSS for RN) + inline style objects.
 - **React Navigation** — native-stack for screens, bottom-tabs for the main tab bar.
 - Entry point: `App.tsx` → providers (`DisplayCurrency`, `Notifications`,

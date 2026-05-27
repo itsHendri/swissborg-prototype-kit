@@ -70,6 +70,16 @@ import { StickyFilterBar } from '../components/shared/StickyFilterBar';
 import { SettingsGroup } from '../components/shared/SettingsGroup';
 import { RefreshScroll } from '../components/shared/RefreshScroll';
 
+// Phase D — Onboarding, KYC & Sheets
+import { ActionSheet } from '../components/shared/ActionSheet';
+import { Slider } from '../components/shared/Slider';
+import { InfoTooltip } from '../components/shared/InfoTooltip';
+import { CountrySelect } from '../components/shared/CountrySelect';
+import { CameraGuide } from '../components/shared/CameraGuide';
+import { DocumentScanFrame } from '../components/shared/DocumentScanFrame';
+import { YieldCard } from '../components/shared/YieldCard';
+import { findCountry, type Country } from '../data/countries';
+
 import { AppHeader } from '../components/AppHeader';
 import { useToast } from '../context/ToastContext';
 
@@ -129,6 +139,15 @@ export function ComponentsScreen() {
     productNews: true,
     biometrics: true,
   });
+
+  // Phase D state
+  const [actionSheetOpen, setActionSheetOpen] = useState(false);
+  const [actionResult, setActionResult] = useState<string | null>(null);
+  const [slippage, setSlippage] = useState(0.5);
+  const [countryOpen, setCountryOpen] = useState(false);
+  const [country, setCountry] = useState<Country | undefined>(findCountry('CH'));
+  const [selfieCaptured, setSelfieCaptured] = useState(false);
+  const [docCaptured, setDocCaptured] = useState(false);
 
   const trimmedFilter = filter.trim();
   const summary = useMemo(() => {
@@ -883,6 +902,231 @@ export function ComponentsScreen() {
               </Text>
             </RefreshScroll>
           </Card>
+        </DevKitSection>
+
+        {/* ── ActionSheet ────────────────────────────────────────────── */}
+        <DevKitSection
+          title="ActionSheet"
+          aliases={['action menu', 'options sheet']}
+          filter={filter}
+          api="<ActionSheet visible title? description? items=[{label,icon?,onPress,destructive?}] onClose />"
+          caption="Action menu (Share / Favourite / Report / Delete). Distinct from BottomSheet, which is an option picker."
+        >
+          <Card padding="all">
+            <View style={{ gap: SPACING.sm }}>
+              <Button label="Open action sheet" variant="secondary" onPress={() => setActionSheetOpen(true)} />
+              {actionResult ? (
+                <Text style={[typography.label, { color: COLORS.foregroundMuted }]}>
+                  Last action: {actionResult}
+                </Text>
+              ) : null}
+            </View>
+          </Card>
+          <ActionSheet
+            visible={actionSheetOpen}
+            onClose={() => setActionSheetOpen(false)}
+            title="Manage transaction"
+            description="0x4a…b9c2 · 0.024 BTC received"
+            items={[
+              { label: 'Share receipt', icon: 'share-outline', onPress: () => setActionResult('Shared') },
+              { label: 'Favourite',     icon: 'star-outline',  onPress: () => setActionResult('Favourited') },
+              { label: 'Hide',          icon: 'eye-off-outline', onPress: () => setActionResult('Hidden') },
+              { label: 'Report issue',  icon: 'flag-outline', destructive: true, onPress: () => setActionResult('Reported') },
+            ]}
+          />
+        </DevKitSection>
+
+        {/* ── Slider ─────────────────────────────────────────────────── */}
+        <DevKitSection
+          title="Slider"
+          aliases={['range slider', 'slippage', 'fee slider']}
+          filter={filter}
+          api="<Slider value onChange min? max? step? tone? disabled? onChangeComplete? />"
+          caption="Continuous or stepped slider. Pair with a labeled header for slippage / fee tuning."
+        >
+          <Card padding="all">
+            <View style={{ gap: SPACING.lg }}>
+              <View>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    marginBottom: SPACING.sm,
+                  }}
+                >
+                  <Text style={[typography.label, { color: COLORS.foregroundMuted }]}>Slippage tolerance</Text>
+                  <Text style={[typography.labelSemibold, { color: COLORS.foreground }]}>
+                    {slippage.toFixed(1)}%
+                  </Text>
+                </View>
+                <Slider
+                  value={slippage}
+                  onChange={setSlippage}
+                  min={0}
+                  max={5}
+                  step={0.1}
+                />
+              </View>
+              <View>
+                <Text style={[typography.label, { color: COLORS.foregroundMuted, marginBottom: SPACING.sm }]}>
+                  Warning tone — continuous
+                </Text>
+                <Slider value={0.7} onChange={() => {}} tone="warning" />
+              </View>
+              <View>
+                <Text style={[typography.label, { color: COLORS.foregroundMuted, marginBottom: SPACING.sm }]}>
+                  Disabled
+                </Text>
+                <Slider value={0.4} onChange={() => {}} disabled />
+              </View>
+            </View>
+          </Card>
+        </DevKitSection>
+
+        {/* ── InfoTooltip ────────────────────────────────────────────── */}
+        <DevKitSection
+          title="InfoTooltip"
+          aliases={['help', 'tooltip', 'info popover']}
+          filter={filter}
+          api="<InfoTooltip title? message size? iconColor? style? />"
+          caption="Info (i) icon → bottom-sheet popover. Use next to regulated copy (APY, fees, holding periods)."
+        >
+          <Card padding="all">
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: SPACING.lg, flexWrap: 'wrap' }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: SPACING.xs + 2 }}>
+                <Text style={[typography.body, { color: COLORS.foreground }]}>APY</Text>
+                <InfoTooltip
+                  title="What is APY?"
+                  message="Annual percentage yield — the rate of return over a year, including compounding. Rates are variable and can change daily."
+                />
+              </View>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: SPACING.xs + 2 }}>
+                <Text style={[typography.body, { color: COLORS.foreground }]}>Slippage</Text>
+                <InfoTooltip
+                  title="Slippage tolerance"
+                  message="The maximum price change you'll accept between quote and execution. Higher slippage means your trade is more likely to fill, but at a worse rate."
+                  iconColor={COLORS.accent}
+                />
+              </View>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: SPACING.xs + 2 }}>
+                <Text style={[typography.body, { color: COLORS.foreground }]}>Holding period</Text>
+                <InfoTooltip message="Funds are locked for the lock-up period and cannot be withdrawn early." />
+              </View>
+            </View>
+          </Card>
+        </DevKitSection>
+
+        {/* ── CountrySelect ──────────────────────────────────────────── */}
+        <DevKitSection
+          title="CountrySelect"
+          aliases={['country picker', 'phone code', 'dial code', 'flag']}
+          filter={filter}
+          api="<CountrySelect visible value? onChange onClose countries? title? />"
+          caption="Searchable country picker with flag + dial code. Pass `visible` like BottomSheet."
+        >
+          <Card padding="all">
+            <View style={{ gap: SPACING.sm }}>
+              <Text style={[typography.label, { color: COLORS.foregroundMuted }]}>Current selection</Text>
+              <Pressable
+                onPress={() => setCountryOpen(true)}
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  gap: SPACING.md,
+                  backgroundColor: COLORS.iconBg,
+                  borderRadius: 12,
+                  paddingVertical: SPACING.md,
+                  paddingHorizontal: SPACING.md + 2,
+                }}
+              >
+                {country ? (
+                  <>
+                    <Text style={{ fontSize: 22 }}>{country.flag}</Text>
+                    <Text style={[typography.bodySemibold, { color: COLORS.foreground, flex: 1 }]}>
+                      {country.name}
+                    </Text>
+                    <Text style={[typography.body, { color: COLORS.foregroundMuted }]}>{country.dial}</Text>
+                    <Ionicons name="chevron-down" size={16} color={COLORS.foregroundMuted} />
+                  </>
+                ) : (
+                  <Text style={[typography.body, { color: COLORS.foregroundMuted, flex: 1 }]}>
+                    Choose a country
+                  </Text>
+                )}
+              </Pressable>
+            </View>
+          </Card>
+          <CountrySelect
+            visible={countryOpen}
+            value={country?.code}
+            onChange={c => { setCountry(c); setCountryOpen(false); }}
+            onClose={() => setCountryOpen(false)}
+          />
+        </DevKitSection>
+
+        {/* ── CameraGuide ────────────────────────────────────────────── */}
+        <DevKitSection
+          title="CameraGuide"
+          aliases={['selfie', 'face capture', 'kyc selfie']}
+          filter={filter}
+          api="<CameraGuide prompt? onCapture? captured? ctaLabel? />"
+          caption="Mock-only selfie capture surface. Wire `onCapture` to advance the KYC step."
+        >
+          <CameraGuide
+            captured={selfieCaptured}
+            onCapture={() => setSelfieCaptured(c => !c)}
+          />
+        </DevKitSection>
+
+        {/* ── DocumentScanFrame ──────────────────────────────────────── */}
+        <DevKitSection
+          title="DocumentScanFrame"
+          aliases={['id scan', 'document capture', 'kyc id', 'passport']}
+          filter={filter}
+          api="<DocumentScanFrame prompt? onCapture? captured? ctaLabel? aspectRatio? />"
+          caption="Mock-only ID/document capture. Corners are decorative — no real edge detection."
+        >
+          <DocumentScanFrame
+            captured={docCaptured}
+            onCapture={() => setDocCaptured(c => !c)}
+          />
+        </DevKitSection>
+
+        {/* ── YieldCard ──────────────────────────────────────────────── */}
+        <DevKitSection
+          title="YieldCard"
+          aliases={['earn card', 'staking card', 'product card', 'apy card']}
+          filter={filter}
+          api="<YieldCard title description? apy? apyLabel? illustration? progress? timeLeft? cta? featured? />"
+          caption="Marketing card for Earn / staking / yield products. Composes Card + ProgressBar + Badge + Button."
+        >
+          <View style={{ gap: SPACING.md }}>
+            <YieldCard
+              title="USDC Vault"
+              description="Stablecoin yield with weekly compounding"
+              apy="5.2%"
+              illustration={<GlassIcon name="vault" size={56} />}
+              progress={{ value: 0.72, label: 'Capacity', trailingLabel: '72%' }}
+              timeLeft="Closes in 3d 4h"
+              cta={{ label: 'Deposit', onPress: () => {} }}
+              featured
+            />
+            <YieldCard
+              title="BTC Earn"
+              description="Hold BTC, earn BORG rewards weekly"
+              apy="3.1%"
+              illustration={<GlassIcon name="piggyBank" size={56} />}
+              cta={{ label: 'Learn more', onPress: () => {} }}
+            />
+            <YieldCard
+              title="Solana Staking"
+              apy="6.8%"
+              apyLabel="APR"
+              illustration={<GlassIcon name="seedling" size={56} />}
+              progress={{ value: 0.92, label: 'Almost full', trailingLabel: '92%' }}
+            />
+          </View>
         </DevKitSection>
 
         {/* ── QuoteCard ──────────────────────────────────────────────── */}
