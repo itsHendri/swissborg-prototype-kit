@@ -208,3 +208,68 @@ After-cloning step in README.
 Prefer **`npm run share -- "<message>"`** over raw `eas update`. The
 script lives at `scripts/share.sh` and prints the canonical
 `exp://u.expo.dev/<projectId>/group/<id>` link on the last line.
+
+## Status
+
+The kit shipped its four-phase Mobbin-informed component expansion in
+late May 2026. Where things stand:
+
+- **~62 shared components** across primitives, charts & numbers, money
+  movement, lists & search, onboarding & KYC, sheets, forms,
+  marketing, feedback, scaffolding. Full registry in
+  [DESIGN_SYSTEM.md](./DESIGN_SYSTEM.md).
+- **Two dev surfaces** — `Components` (live preview) and `Styles`
+  (token + asset catalog), both with sticky search.
+- **Cross-cutting state**: `BalanceVisibilityContext` for the eye
+  toggle, `ToastContext` for ephemeral messages, `useHaptic()` hook.
+- **Scenarios array empty on `main`** — kit contract. Prototypes fork
+  via "Use this template" and register their own variants.
+
+## Known cleanup candidates
+
+Small items worth visiting when a session has spare cycles:
+
+- **`YieldCard` illustration alignment** — in the Phase D Dev Kit
+  preview, the leading `GlassIcon` rendered cropped/faint on the
+  featured variant. Worth a layout pass to confirm the icon column
+  reserves correct width.
+- **Theme context is decorative** — `ThemeContext` ships with the kit
+  but every shared component hard-codes `COLORS.*` (dark-mode
+  values). Light-mode support is a real lift — covered under
+  "Improvement directions" below.
+- **`AmountChipOption` import** in
+  [src/screens/ComponentsScreen.tsx](src/screens/ComponentsScreen.tsx)
+  is unused. Trivial cleanup.
+- **`StickyFilterBar` doesn't actually stick** — the component is the
+  filter strip only; the parent is responsible for the sticky/animated
+  wrapper. Could ship a `StickyHeader` composite that does both.
+- **`SwapPanel` outlineWidth hack** — uses a raw `outlineWidth: 0`
+  style cast on web to suppress focus ring. Could be cleaner with a
+  proper RN-Web style or a `webStyle` prop.
+- **`useTransition` removed from `SearchBar`** but the file still has
+  a trailing blank line where it lived — purely cosmetic.
+
+## Improvement directions
+
+When the user asks "what's next" or "let's polish", these are the
+high-value axes to suggest, in rough priority:
+
+1. **Polish QA pass** — walk the Dev Kit Components screen
+   section-by-section on the iOS Simulator. Note visual / interaction
+   issues, fix the cluster of small ones in one PR.
+2. **Theme system** — wire `ThemeContext` through to every shared
+   component so light / dark mode actually flips. Requires lifting the
+   hard-coded `COLORS.*` references into a theme hook and possibly
+   forking the colors module into a light-mode set.
+3. **Second Mobbin pass** — look for the longer tail now that obvious
+   gaps are filled: CircularProgress, DateRangePicker, ContextMenu /
+   long-press preview, AvatarStack, KPI tile, ChartLegend, Drawer.
+4. **Sample scenarios** — `_template` is a single starter; richer
+   reference flows (full KYC, full Swap, full Settings) would help new
+   designers land faster. Live under `src/prototype/_template/` as
+   additional copy-this-file starters.
+5. **Tooling sidequests** — Figma Code Connect mappings, snapshot
+   tests for the Dev Kit, asset pipeline.
+
+Don't tackle these all at once. Ask the user which they want to
+focus on, scope a phase like A–D, ship, then move on.
